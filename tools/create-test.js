@@ -16,9 +16,9 @@
 // Requirements
 //------------------------------------------------------------------------------
 
-var shelljs = require("shelljs"),
-    espree = require("../espree"),
-    path = require("path");
+import { cat } from "shelljs";
+import { parse } from "../espree";
+import { resolve } from "path";
 
 //------------------------------------------------------------------------------
 // Initialization
@@ -41,7 +41,7 @@ if (!filename) {
     process.exit(1);
 }
 
-var rawCode = shelljs.cat(codeFilename),
+var rawCode = cat(codeFilename),
     code = rawCode.split(PATTERN),
     sections = rawCode.match(PATTERN);
 
@@ -56,8 +56,8 @@ if (!sections || sections.length !== code.length) {
 code.forEach(function(source, index) {
 
     var fullFilename = filename + "/" + (sections[index].substring(18, sections[index].length - 2).trim()),
-        testSourceFilename = path.resolve("__dirname", "../tests/fixtures/" + fullFilename + ".src.js"),
-        testResultFilename = path.resolve("__dirname", "../tests/fixtures/" + fullFilename + ".result.js");
+        testSourceFilename = resolve("__dirname", "../tests/fixtures/" + fullFilename + ".src.js"),
+        testResultFilename = resolve("__dirname", "../tests/fixtures/" + fullFilename + ".result.js");
 
     var result,
         sourceCode = source.trim();
@@ -72,7 +72,7 @@ code.forEach(function(source, index) {
     //------------------------------------------------------------------------------
 
     try {
-        result = espree.parse(sourceCode, {
+        result = parse(sourceCode, {
             ecmaVersion: 8, // change as needed
             ecmaFeatures: {
                 experimentalObjectRestSpread: true

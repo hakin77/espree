@@ -1,7 +1,4 @@
-/*!espree-section: super-function-call*/
-function foo() {
-    super();
-}
+
 /*!espree-section: super-property-call*/
 function foo() {
     super.foo();

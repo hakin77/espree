@@ -15,10 +15,10 @@
 // Requirements
 //------------------------------------------------------------------------------
 
-var shelljs = require("shelljs"),
-    espree = require("../espree"),
-    tester = require("../tests/lib/tester"),
-    path = require("path");
+import { find, cat } from "shelljs";
+import { parse } from "../espree";
+import { getRaw } from "../tests/lib/tester";
+import { resolve, dirname } from "path";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -26,16 +26,16 @@ var shelljs = require("shelljs"),
 
 function getExpectedResult(code, config) {
     try {
-        return tester.getRaw(espree.parse(code, config));
+        return getRaw(parse(code, config));
     } catch (ex) {
-        var raw = tester.getRaw(ex);
+        var raw = getRaw(ex);
         raw.message = ex.message;
         return raw;
     }
 }
 
 function getTestFilenames(directory) {
-    return shelljs.find(directory).filter(function(filename) {
+    return find(directory).filter(function(filename) {
         return filename.indexOf(".src.js") > -1;
     }).map(function(filename) {
         return filename.substring(directory.length - 1, filename.length - 7);  // strip off ".src.js"
@@ -43,7 +43,7 @@ function getTestFilenames(directory) {
 }
 
 function getLibraryFilenames(directory) {
-    return shelljs.find(directory).filter(function(filename) {
+    return find(directory).filter(function(filename) {
         return filename.indexOf(".js") > -1 && filename.indexOf(".result.js") === -1;
     }).map(function(filename) {
         return filename.substring(directory.length - 1);  // strip off directory
@@ -67,8 +67,8 @@ var testFiles = getTestFilenames(FIXTURES_DIR),
     libraryFiles = getLibraryFilenames(LIBRARIES_DIR);
 
 libraryFiles.forEach(function(filename) {
-    var testResultFilename = path.resolve(__dirname, "..", LIBRARIES_DIR, filename) + ".result.json",
-        code = shelljs.cat(path.resolve(LIBRARIES_DIR, filename)),
+    var testResultFilename = resolve(__dirname, "..", LIBRARIES_DIR, filename) + ".result.json",
+        code = cat(resolve(LIBRARIES_DIR, filename)),
         result = getExpectedResult(code, {
             loc: true,
             range: true,
@@ -81,8 +81,8 @@ libraryFiles.forEach(function(filename) {
 // update all tests in ecma-features
 testFiles.forEach(function(filename) {
 
-    var feature = path.dirname(filename),
-        code = shelljs.cat(path.resolve(FIXTURES_DIR, filename) + ".src.js"),
+    var feature = dirname(filename),
+        code = cat(resolve(FIXTURES_DIR, filename) + ".src.js"),
         config = {
             loc: true,
             range: true,
@@ -92,7 +92,7 @@ testFiles.forEach(function(filename) {
         };
 
     config.ecmaFeatures[feature] = true;
-    var testResultFilename = path.resolve(__dirname, "..", FIXTURES_DIR, filename) + ".result.js";
+    var testResultFilename = resolve(__dirname, "..", FIXTURES_DIR, filename) + ".result.js";
     var result = getExpectedResult(code, config);
 
     outputResult(result, testResultFilename);
@@ -101,7 +101,7 @@ testFiles.forEach(function(filename) {
 versionFiles.forEach(function(filename) {
 
     var version = Number(filename.substring(0, filename.indexOf("/"))),
-        code = shelljs.cat(path.resolve(FIXTURES_VERSION_DIR, filename) + ".src.js"),
+        code = cat(resolve(FIXTURES_VERSION_DIR, filename) + ".src.js"),
         config = {
             loc: true,
             range: true,
@@ -109,7 +109,7 @@ versionFiles.forEach(function(filename) {
             ecmaVersion: version
         };
 
-    var testResultFilename = path.resolve(__dirname, "..", FIXTURES_VERSION_DIR, filename) + ".result.js",
+    var testResultFilename = resolve(__dirname, "..", FIXTURES_VERSION_DIR, filename) + ".result.js",
         result = getExpectedResult(code, config);
 
     outputResult(result, testResultFilename);

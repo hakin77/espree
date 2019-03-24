@@ -1,3 +1,7 @@
+v5.0.2 - March 24, 2019
+
+
+
 v5.0.1 - February 15, 2019
 
 * [`c40e2fc`](https://github.com/eslint/espree/commit/c40e2fcedf81ff06151e82bdf655d2d0d29e71b8) Upgrade: acorn@6.0.7 (#407) (Kai Cataldo)
